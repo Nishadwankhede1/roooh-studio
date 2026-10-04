@@ -1,0 +1,51 @@
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const slides=[...document.querySelectorAll('.hero-slide')],dots=[...document.querySelectorAll('[data-slide]')];
+const captions=['INTERIORS / IN MOTION','WEDDINGS / GOLDEN MOMENTS','ARCHITECTURE / SPACE TO BREATHE','CELEBRATIONS / COLOUR & CULTURE','INTERIORS / THE FINER DETAILS'];
+let slideIndex=0,paused=reduced.matches||matchMedia("(max-width:700px)").matches||!!navigator.connection?.saveData,timer;
+const heroVideo=document.querySelector('.hero-slide video');
+function showSlide(index){slideIndex=(index+slides.length)%slides.length;slides.forEach((s,i)=>s.classList.toggle('current',i===slideIndex));dots.forEach((d,i)=>d.setAttribute('aria-pressed',String(i===slideIndex)));document.querySelector('#hero-caption').textContent=captions[slideIndex];heroVideo.pause();if(slideIndex===0&&!paused)heroVideo.play().catch(()=>{});}
+function start(){clearInterval(timer);if(!paused&&!document.hidden)timer=setInterval(()=>showSlide(slideIndex+1),8000);}
+dots.forEach(d=>d.addEventListener('click',()=>{showSlide(Number(d.dataset.slide));start();}));
+document.querySelector('#slide-prev').addEventListener('click',()=>{showSlide(slideIndex-1);start();});
+document.querySelector('#slide-next').addEventListener('click',()=>{showSlide(slideIndex+1);start();});
+const pauseButton=document.querySelector('#slide-pause');
+function setPause(v){paused=v;pauseButton.textContent=paused?'Play':'Pause';pauseButton.setAttribute('aria-label',paused?'Play slideshow':'Pause slideshow');if(paused)heroVideo.pause();else if(slideIndex===0)heroVideo.play().catch(()=>{});start();}
+pauseButton.addEventListener('click',()=>setPause(!paused));
+document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInterval(timer);heroVideo.pause();}else{showSlide(slideIndex);start();}});
+reduced.addEventListener('change',()=>setPause(reduced.matches));setPause(paused);
+const filters=document.querySelectorAll('[data-filter]');
+filters.forEach(button=>button.addEventListener('click',()=>{filters.forEach(b=>{b.classList.toggle('active',b===button);b.setAttribute('aria-pressed',String(b===button));});document.querySelectorAll('[data-category]').forEach(card=>card.hidden=button.dataset.filter!=='all'&&card.dataset.category!==button.dataset.filter);}));
+const lightbox=document.querySelector('#lightbox');let projects=[],activeProject,photoIndex=0,opener;
+const dataReady=fetch('projects.json').then(r=>{if(!r.ok)throw Error('Could not load collections');return r.json();}).then(p=>projects=p);
+function showPhoto(index){photoIndex=(index+activeProject.images.length)%activeProject.images.length;const photo=activeProject.images[photoIndex];const img=lightbox.querySelector('.collection-main img');img.src=photo.src;img.alt=photo.alt;lightbox.querySelector('.image-count').textContent=(photoIndex+1)+' / '+activeProject.images.length+' selected frames';lightbox.querySelectorAll('[data-photo]').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===photoIndex)));}
+document.querySelectorAll('[data-project]').forEach(card=>card.addEventListener('click',async()=>{try{await dataReady;}catch{alert('The collection could not load. Please refresh and try again.');return;}opener=card;activeProject=projects[Number(card.dataset.project)];document.querySelector('#collection-title').textContent=activeProject.title;const hasPhotos=activeProject.images.length>0;lightbox.querySelector('.collection-main').hidden=!hasPhotos;lightbox.querySelector('.image-count').hidden=!hasPhotos;const thumbs=lightbox.querySelector('.collection-thumbs');thumbs.replaceChildren();activeProject.images.forEach((photo,i)=>{const b=document.createElement('button');b.dataset.photo=i;b.setAttribute('aria-label','View photograph '+(i+1));const img=document.createElement('img');img.src=photo.src;img.alt='';img.loading='lazy';b.append(img);b.addEventListener('click',()=>showPhoto(i));thumbs.append(b);});const films=lightbox.querySelector('.collection-films');films.replaceChildren();
+if(activeProject.films.length){
+  const player=document.createElement('iframe');player.className='film-player';player.allow='autoplay; fullscreen; picture-in-picture';player.allowFullscreen=true;player.referrerPolicy='strict-origin-when-cross-origin';
+  const filmTitle=document.createElement('h3');filmTitle.className='playing-title';
+  const playlist=document.createElement('div');playlist.className='film-playlist';playlist.setAttribute('role','group');playlist.setAttribute('aria-label','Choose a film');
+  const playFilm=(film,index)=>{const id=new URL(film.url).pathname.match(/\/file\/d\/([^/]+)/)?.[1];if(!id)return;player.src='https://drive.google.com/file/d/'+encodeURIComponent(id)+'/preview?hl=en';player.title=film.title+' — video player';filmTitle.textContent=film.title;playlist.querySelectorAll('button').forEach((b,i)=>{b.setAttribute('aria-pressed',String(i===index));});};
+  activeProject.films.forEach((film,index)=>{const b=document.createElement('button');b.type='button';b.textContent=String(index+1).padStart(2,'0')+' / '+film.title;b.addEventListener('click',()=>playFilm(film,index));playlist.append(b);});
+  films.append(filmTitle,player,playlist);playFilm(activeProject.films[0],0);
+}
+const folderId=new URL(activeProject.source).pathname.match(/\/folders\/([^/]+)/)?.[1];
+if(folderId){
+  const album=document.createElement('details');album.className='complete-album';const summary=document.createElement('summary');summary.textContent=hasPhotos?'Browse the complete photo collection':'Browse the complete project collection';
+  const albumFrame=document.createElement('iframe');albumFrame.className='album-player';albumFrame.title=activeProject.title+' — complete collection';albumFrame.loading='lazy';albumFrame.referrerPolicy='strict-origin-when-cross-origin';
+  album.addEventListener('toggle',()=>{if(album.open&&!albumFrame.src)albumFrame.src='https://drive.google.com/embeddedfolderview?id='+encodeURIComponent(folderId)+'&hl=en#grid';});album.append(summary,albumFrame);films.append(album);
+}
+if(hasPhotos)showPhoto(0);lightbox.showModal();}));
+lightbox.querySelector('.gallery-prev').addEventListener('click',()=>showPhoto(photoIndex-1));lightbox.querySelector('.gallery-next').addEventListener('click',()=>showPhoto(photoIndex+1));
+lightbox.querySelector('.close').addEventListener('click',()=>lightbox.close());lightbox.addEventListener('close',()=>{lightbox.querySelectorAll('iframe').forEach(frame=>frame.src='about:blank');opener?.focus();});
+lightbox.addEventListener('keydown',e=>{if(activeProject?.images.length&&e.key==='ArrowRight')showPhoto(photoIndex+1);if(activeProject?.images.length&&e.key==='ArrowLeft')showPhoto(photoIndex-1);});
+if(!reduced.matches){const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('revealed');observer.unobserve(e.target);}}),{threshold:.08});document.querySelectorAll('.intro,.section-head,.project-card,.service-grid article,.institutional,.steps article,.contact').forEach(el=>{el.classList.add('reveal');observer.observe(el);});}
+
+
+const coverStates=new Map();const coverObserver=new IntersectionObserver(entries=>entries.forEach(e=>{const state=coverStates.get(e.target);if(state)state.visible=e.isIntersecting;}),{threshold:.1});document.querySelectorAll('.cover-slideshow').forEach((cover,i)=>{const images=[...cover.querySelectorAll('.cover-slide')];if(images.length<2)return;coverStates.set(cover,{images,index:0,visible:false,next:performance.now()+8500+(i%4)*1200});coverObserver.observe(cover);});setInterval(()=>{if(document.hidden||reduced.matches||lightbox.open)return;const now=performance.now();coverStates.forEach(state=>{if(!state.visible||now<state.next)return;const next=(state.index+1)%state.images.length;if(!state.images[next].complete||!state.images[next].naturalWidth)return;state.images.forEach((image,i)=>image.classList.toggle('cover-current',i===next));state.index=next;state.next=now+10000;});},1000);
+
+ document.querySelectorAll('[data-chapter-filter]').forEach(a=>a.addEventListener('click',()=>document.querySelector('[data-filter="'+a.dataset.chapterFilter+'"]').click()));
+const progress=document.createElement('div');progress.className='reading-progress';progress.setAttribute('aria-hidden','true');document.body.append(progress);let scheduled=false;addEventListener('scroll',()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{const distance=document.documentElement.scrollHeight-innerHeight;progress.style.transform='scaleX('+Math.min(1,scrollY/Math.max(distance,1))+')';scheduled=false;});},{passive:true});
+if(!reduced.matches){const storyObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('revealed');storyObserver.unobserve(e.target);}}),{threshold:.08});document.querySelectorAll('.chapter-note,.chapter-photo,.chapter-detail,.chapter-line,.story-opening,.motion-story').forEach(el=>{el.classList.add('reveal');storyObserver.observe(el);});}
+
+const menuToggle=document.querySelector('.menu-toggle'),siteHeader=document.querySelector('header');function closeMenu(){siteHeader.classList.remove('menu-open');menuToggle.setAttribute('aria-expanded','false');}menuToggle.addEventListener('click',()=>{const open=siteHeader.classList.toggle('menu-open');menuToggle.setAttribute('aria-expanded',String(open));});siteHeader.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',closeMenu));addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
+let touchStart=null;lightbox.querySelector('.collection-main').addEventListener('touchstart',e=>{if(e.touches.length===1)touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});lightbox.querySelector('.collection-main').addEventListener('touchend',e=>{if(!touchStart||!activeProject?.images.length)return;const t=e.changedTouches[0],dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;touchStart=null;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5)showPhoto(photoIndex+(dx<0?1:-1));},{passive:true});
+lightbox.addEventListener('close',()=>document.body.classList.remove('collection-open'));new MutationObserver(()=>document.body.classList.toggle('collection-open',lightbox.open)).observe(lightbox,{attributes:true,attributeFilter:['open']});
