@@ -28,3 +28,39 @@ header{position:absolute;top:0;left:0;right:0;z-index:5;padding:30px 4%;backgrou
 @media(max-width:700px){header{padding:18px 6%;background:linear-gradient(#0009,transparent)}header .logo{font-size:36px}.menu-toggle{border-color:#ffffff80;color:#fff}.nav-contact{color:#fff}header.menu-open{background:#111}header nav{border-color:#ffffff40}.cinematic.hero{height:100svh;min-height:650px;max-height:1000px}.hero-copy{padding:0 6%;bottom:175px}.hero-copy h1{font-size:clamp(40px,9.5vw,62px)}.hero-copy .eyebrow{font-size:12px;letter-spacing:.08em}.hero-copy p{font-size:16px}.hero-bar{bottom:25px}.signature-stories{padding:65px 6%}.signature-heading{padding-bottom:35px}.signature-heading h2{font-size:48px}.signature-grid{grid-template-columns:1fr;gap:35px}.signature-story:nth-child(n){padding-top:0}.signature-image img{aspect-ratio:4/5}.signature-caption h3{font-size:32px}.signature-caption{padding-top:18px}.signature-stories>.text-link{max-width:100%;width:auto;justify-content:center}.film-selections{grid-template-columns:1fr;margin-top:35px;gap:15px}.film-selections button{min-height:150px;padding:22px}.film-selections strong{font-size:28px}.story-opening{padding:70px 6%}.intro{padding:75px 6%}.motion-story{padding:65px 6%}}
 @media(max-height:600px) and (min-width:701px){.cinematic.hero{height:auto;min-height:650px}.hero-copy h1{font-size:65px}}
 @media(prefers-reduced-motion:reduce){.signature-image img{transition:none}.signature-story:hover img{transform:none}}
+
+/* Roooh: burgundy, parchment and champagne */
+:root{--bg:#21171b;--ink:#f6eee3;--muted:#c8b8ae;--line:#594348;--accent:#d3b185;--wine:#502632;--paper:#f2e8da}
+body{background:var(--bg);color:var(--ink)}
+::selection{background:#d3b185;color:#21171b}
+header{background:linear-gradient(#21171b99,transparent)}
+header.menu-open{background:#302027}
+.hero-shade{background:linear-gradient(0deg,#21171bd9,transparent 80%),linear-gradient(90deg,#21171b33,transparent)}
+.hero-copy p{color:#f6eee3}.hero-copy .light{background:var(--paper);color:#302027}
+.hero-bar,.hero-copy .eyebrow{color:#f6eee3}.slide-controls button{color:#f6eee3;background:#21171b55;border-color:#d3b18577}
+.slide-dots button[aria-pressed=true]{color:#f1d8b3;border-bottom-color:#d3b185}
+.intro{background:radial-gradient(ellipse at 10% 30%,#4c293144,transparent 65%),#21171b}
+.studio-mark{color:#d3b185}
+.signature-stories,.spaces{background:linear-gradient(120deg,#f4ecdf,#ede0cf);color:#35252b;--muted:#695850;--line:#cdbba7;--accent:#75464e;color-scheme:light}
+.signature-heading .eyebrow,.signature-caption .eyebrow,.spaces .eyebrow{color:#75464e}
+.signature-image>span{background:#302027d9;color:#f6eee3;border:1px solid #d3b18566}
+.story-opening{background:linear-gradient(135deg,#362029,#24181e);border-color:#594348}
+.love{background:#24181e}.chapter-note .eyebrow{color:#dfc4a3}.spaces .chapter-note .eyebrow{color:#75464e}
+.motion-story{background:radial-gradient(ellipse at 85% 20%,#62313c55,transparent 65%),#302027}
+.film-selections button{border-color:#76535b;border-top-color:#d3b185;background:#3c263033}
+.film-selections button:hover{background:#482c36}.film-selections span{color:#dfc4a3}
+.work{background:#21171b}.project-image,.cover-slideshow{background:#302027}
+.project-open{background:#302027dc;color:#f6eee3;border:1px solid #d3b18555}.film-badge{background:#302027cc;color:#f6eee3;border-color:#d3b18588}
+.services{background:#2b1c22}.service-grid article>span{color:#d3b185}
+.institutional{background:linear-gradient(125deg,#4c2934,#332029);color:#f6eee3}.institutional p{color:#d9c8bf}
+.process{background:#21171b}.celebrity-links a{background:#302027;border-top-color:#d3b185}.celebrity-links a:hover{background:#422832}
+.contact{background:radial-gradient(ellipse at 80% 15%,#75424c77,transparent 70%),#502632;color:#f6eee3;--line:#c8a7a155}
+.contact .eyebrow{color:#e2c7a6}.contact p{color:#e1cfc5}.contact .light{background:#e5ceb0;color:#302027}.contact .light:hover{background:#f4e3cc}
+.light{background:#ead9bf;color:#302027}.button:hover{background:#f2e4cf;color:#302027}
+footer{background:#1a1216;border-top-color:#594348}.text-link{border-bottom-color:#bc9870}
+dialog{background:#21171b;color:#f6eee3;border-color:#76535b}.collection-top{background:#21171b}.collection-main button{background:#422832;border-color:#a58270}.close{color:#f6eee3;border-color:#a58270}
+.collection-thumbs button{border-color:#76535b}.collection-thumbs button[aria-pressed=true]{border-color:#d3b185}
+.film-playlist button{background:#302027;color:#f6eee3}.film-playlist button[aria-pressed=true]{background:#502632;border-color:#d3b185}
+.film-player{border-color:#76535b}.reading-progress{background:#d3b185}
+a:focus-visible,button:focus-visible,summary:focus-visible,.signature-story:focus-visible,.film-selections button:focus-visible{outline-color:#d3b185}
+.signature-story:focus-visible,.signature-stories a:focus-visible,.spaces a:focus-visible{outline-color:#75464e}
